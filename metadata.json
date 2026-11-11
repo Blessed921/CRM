@@ -1,0 +1,8 @@
+{
+  "name": "DevAgency CRM",
+  "description": "Client management and technical business setup platform for software development agencies.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
