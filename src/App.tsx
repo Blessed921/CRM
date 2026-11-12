@@ -4,228 +4,103 @@
  */
 
 import React, { useState } from 'react';
-import { CrmProvider, useCrm } from './context/CrmContext';
-import { ViewTab, Client } from './types/crm';
-import { Header } from './components/Header';
-import { Sidebar } from './components/Sidebar';
-import { MetricsOverview } from './components/MetricsOverview';
-import { ClientsTable } from './components/ClientsTable';
-import { OnboardingWorkflowView } from './components/OnboardingWorkflowView';
-import { ServicePackagesView } from './components/ServicePackagesView';
-import { PMIntegrationsView } from './components/PMIntegrationsView';
-import { TechSetupMatrixView } from './components/TechSetupMatrixView';
-import { ProjectsSprintView } from './components/ProjectsSprintView';
-import { BillingRetainersView } from './components/BillingRetainersView';
-import { AnalyticsPulseView } from './components/AnalyticsPulseView';
-import { ClientDetailDrawer } from './components/ClientDetailDrawer';
-import { NewClientModal } from './components/NewClientModal';
-import { ExportBriefModal } from './components/ExportBriefModal';
-import { ClientPortalView } from './components/ClientPortalView';
+import { AltivioProvider, useAltivio } from './context/AltivioContext';
+import { AltivioHeader } from './components/AltivioHeader';
+import { AltivioSidebar } from './components/AltivioSidebar';
+import { ProofOverviewView } from './components/views/ProofOverviewView';
+import { TrafficView } from './components/views/TrafficView';
+import { EnquiriesInboxView } from './components/views/EnquiriesInboxView';
+import { ServiceModuleView } from './components/views/ServiceModuleView';
+import { ShopModuleView } from './components/views/ShopModuleView';
+import { ContentEditorView } from './components/views/ContentEditorView';
+import { WebsiteHealthView } from './components/views/WebsiteHealthView';
+import { ProofReportsView } from './components/views/ProofReportsView';
+import { AltivioSupportView } from './components/views/AltivioSupportView';
+import { AltivioAdminConsoleView } from './components/views/AltivioAdminConsoleView';
+import { InsightsView } from './components/views/InsightsView';
+import { NewTenantModal } from './components/NewTenantModal';
 
-const CrmApp: React.FC = () => {
-  const {
-    clients,
-    selectedClient,
-    setActiveClientId,
-    addClient,
-    updateClient,
-    toggleAccessItem,
-    addActivityLog,
-    updateMilestone,
-    addMilestone,
-    updateClientOnboardingStage,
-    toggleOnboardingTask,
-    packages,
-    addPackage,
-    updatePackage,
-    deletePackage,
-    assignPackageToClient,
-    integrations,
-    triggerManualSync,
-    toggleFieldSync,
-    toggleIntegrationConnection,
-    resetToDefaults,
-  } = useCrm();
-
-  const [currentTab, setCurrentTab] = useState<ViewTab>('clients');
-  const [viewMode, setViewMode] = useState<'admin' | 'portal'>('admin');
-  const [portalClientId, setPortalClientId] = useState<string>(clients[0]?.id || 'c-aurapay');
-  const [isNewClientOpen, setIsNewClientOpen] = useState(false);
-  const [isExportOpen, setIsExportOpen] = useState(false);
-  const [exportClientTarget, setExportClientTarget] = useState<Client | null>(null);
-
-  const onboardingCount = clients.filter(
-    (c) => c.health === 'onboarding' || c.currentOnboardingStage !== 'completed'
-  ).length;
-
-  const handleOpenExportForClient = (client: Client) => {
-    setExportClientTarget(client);
-    setIsExportOpen(true);
-  };
-
-  const currentPortalClient = clients.find((c) => c.id === portalClientId) || clients[0];
-  const currentPortalPackage = packages.find((p) => p.id === currentPortalClient?.packageId) ||
-    packages.find((p) => p.name === currentPortalClient?.packageName);
+const AltivioAppMain: React.FC = () => {
+  const { viewMode, activeTab, activeTenant } = useAltivio();
+  const [isNewTenantModalOpen, setIsNewTenantModalOpen] = useState(false);
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-slate-950 text-slate-100">
-      {/* Sidebar Navigation - only rendered in agency admin mode */}
-      {viewMode === 'admin' && (
-        <Sidebar
-          currentTab={currentTab}
-          onSelectTab={setCurrentTab}
-          clientsCount={clients.length}
-          onboardingCount={onboardingCount}
-          packagesCount={packages.length}
-        />
-      )}
+    <div className="flex h-screen w-screen overflow-hidden bg-[#090D16] text-slate-100 font-sans relative selection:bg-indigo-500/30 selection:text-indigo-200">
+      {/* Subtle modern ambient background glow */}
+      <div className="absolute top-0 left-1/4 w-[700px] h-[300px] bg-indigo-600/[0.04] blur-[140px] pointer-events-none rounded-full" />
+      <div className="absolute top-1/3 right-10 w-[600px] h-[350px] bg-emerald-600/[0.03] blur-[160px] pointer-events-none rounded-full" />
+
+      {/* Sidebar: Only visible when inspecting a specific tenant dashboard */}
+      {viewMode === 'tenant' && <AltivioSidebar />}
 
       {/* Main Workspace */}
-      <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
-        {/* Top Header */}
-        <Header
-          currentTab={currentTab}
-          viewMode={viewMode}
-          onToggleViewMode={() => setViewMode(viewMode === 'admin' ? 'portal' : 'admin')}
-          onOpenNewClient={() => setIsNewClientOpen(true)}
-          onOpenExportModal={() => {
-            setExportClientTarget(null);
-            setIsExportOpen(true);
-          }}
-          onResetData={resetToDefaults}
-          clientsCount={clients.length}
-        />
+      <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden relative z-10">
+        {/* Universal Top Header */}
+        <AltivioHeader onOpenNewClientModal={() => setIsNewTenantModalOpen(true)} />
 
-        {/* Viewport Content Area */}
-        <main className="flex-1 overflow-y-auto p-6">
-          {viewMode === 'portal' ? (
-            /* CLIENT PORTAL VIEW */
-            <ClientPortalView
-              client={currentPortalClient}
-              packageItem={currentPortalPackage}
-              onSwitchToAdmin={() => setViewMode('admin')}
-              onSelectDifferentClient={(id) => setPortalClientId(id)}
-              allClients={clients}
-            />
-          ) : (
-            /* AGENCY ADMIN CONSOLE */
-            <div className="max-w-7xl mx-auto space-y-6">
-              {/* KPI Overview Strip */}
-              <MetricsOverview clients={clients} />
+        {/* Content Viewport */}
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+          <div className="max-w-7xl mx-auto">
+            {viewMode === 'altivio-admin' ? (
+              /* Altivio Agency Super-Admin Fleet View */
+              <AltivioAdminConsoleView
+                onOpenNewClientModal={() => setIsNewTenantModalOpen(true)}
+              />
+            ) : (
+              /* Multi-Tenant Client Dashboard View */
+              <>
+                {/* Section 1: Revenue Proof & Base Traffic */}
+                {activeTab === 'proof-overview' && <ProofOverviewView />}
+                {activeTab === 'traffic' && <TrafficView />}
+                {activeTab === 'enquiries' && <EnquiriesInboxView />}
+                {activeTab === 'insights' && <InsightsView />}
 
-              {/* Tab 1: Client Directory */}
-              {currentTab === 'clients' && (
-                <ClientsTable
-                  clients={clients}
-                  onSelectClient={(c) => setActiveClientId(c.id)}
-                  onOpenNewClient={() => setIsNewClientOpen(true)}
-                />
-              )}
+                {/* Section 2: Service Engine Module */}
+                {activeTab === 'leads-pipeline' && (
+                  <ServiceModuleView initialSubTab="leads-pipeline" />
+                )}
+                {activeTab === 'quotes' && (
+                  <ServiceModuleView initialSubTab="quotes" />
+                )}
+                {activeTab === 'invoices' && (
+                  <ServiceModuleView initialSubTab="invoices" />
+                )}
+                {activeTab === 'follow-ups' && (
+                  <ServiceModuleView initialSubTab="follow-ups" />
+                )}
 
-              {/* Tab 2: Standardized 5-Stage Onboarding Workflow */}
-              {currentTab === 'onboarding' && (
-                <OnboardingWorkflowView
-                  clients={clients}
-                  onSelectClient={(c) => setActiveClientId(c.id)}
-                  onUpdateStage={updateClientOnboardingStage}
-                  onToggleTask={toggleOnboardingTask}
-                />
-              )}
+                {/* Section 3: Shop Engine Module */}
+                {activeTab === 'orders' && (
+                  <ShopModuleView initialSubTab="orders" />
+                )}
+                {activeTab === 'products' && (
+                  <ShopModuleView initialSubTab="products" />
+                )}
+                {activeTab === 'customers' && (
+                  <ShopModuleView initialSubTab="customers" />
+                )}
+                {activeTab === 'abandoned-carts' && (
+                  <ShopModuleView initialSubTab="abandoned-carts" />
+                )}
+                {activeTab === 'discounts' && (
+                  <ShopModuleView initialSubTab="discounts" />
+                )}
 
-              {/* Tab 3: Customizable Service Packages */}
-              {currentTab === 'packages' && (
-                <ServicePackagesView
-                  packages={packages}
-                  clients={clients}
-                  onAddPackage={addPackage}
-                  onUpdatePackage={updatePackage}
-                  onDeletePackage={deletePackage}
-                  onAssignPackage={assignPackageToClient}
-                  onSelectClient={(c) => setActiveClientId(c.id)}
-                />
-              )}
-
-              {/* Tab 4: PM Tool Integrations Hub (Jira, Linear, Asana, Trello) */}
-              {currentTab === 'integrations' && (
-                <PMIntegrationsView
-                  integrations={integrations}
-                  clients={clients}
-                  onTriggerSync={triggerManualSync}
-                  onToggleField={toggleFieldSync}
-                  onToggleConnection={toggleIntegrationConnection}
-                  onSelectClient={(c) => setActiveClientId(c.id)}
-                />
-              )}
-
-              {/* Tab 5: Technical Setup Matrix */}
-              {currentTab === 'tech-matrix' && (
-                <TechSetupMatrixView
-                  clients={clients}
-                  onSelectClient={(c) => setActiveClientId(c.id)}
-                  onToggleAccess={toggleAccessItem}
-                />
-              )}
-
-              {/* Tab 6: Sprints & Engineering Deliverables */}
-              {currentTab === 'sprints' && (
-                <ProjectsSprintView
-                  clients={clients}
-                  onSelectClient={(c) => setActiveClientId(c.id)}
-                  onUpdateMilestone={updateMilestone}
-                  onAddMilestone={addMilestone}
-                />
-              )}
-
-              {/* Tab 7: Retainers & Billing Health */}
-              {currentTab === 'retainers' && (
-                <BillingRetainersView
-                  clients={clients}
-                  onSelectClient={(c) => setActiveClientId(c.id)}
-                  onUpdateClient={updateClient}
-                />
-              )}
-
-              {/* Tab 8: Agency Pulse & Intelligence */}
-              {currentTab === 'analytics' && (
-                <AnalyticsPulseView
-                  clients={clients}
-                  onSelectClient={(c) => setActiveClientId(c.id)}
-                />
-              )}
-            </div>
-          )}
+                {/* Section 4: Base Website Tools */}
+                {activeTab === 'content-editor' && <ContentEditorView />}
+                {activeTab === 'health-vitals' && <WebsiteHealthView />}
+                {activeTab === 'proof-reports' && <ProofReportsView />}
+                {activeTab === 'altivio-support' && <AltivioSupportView />}
+              </>
+            )}
+          </div>
         </main>
       </div>
 
-      {/* Client Detail Deep-Dive Drawer */}
-      {selectedClient && (
-        <ClientDetailDrawer
-          client={selectedClient}
-          packages={packages}
-          onClose={() => setActiveClientId(null)}
-          onUpdateClient={updateClient}
-          onToggleAccess={toggleAccessItem}
-          onAddActivity={addActivityLog}
-          onOpenExportModal={handleOpenExportForClient}
-          onUpdateStage={updateClientOnboardingStage}
-          onToggleOnboardingTask={toggleOnboardingTask}
-          onAssignPackage={assignPackageToClient}
-        />
-      )}
-
-      {/* New Client Onboarding Wizard Modal */}
-      <NewClientModal
-        isOpen={isNewClientOpen}
-        onClose={() => setIsNewClientOpen(false)}
-        onAddClient={addClient}
-      />
-
-      {/* Export Brief / Technical Dossier Modal */}
-      <ExportBriefModal
-        isOpen={isExportOpen}
-        onClose={() => setIsExportOpen(false)}
-        clients={clients}
-        initialClient={exportClientTarget}
+      {/* Modal: Deploy New Client Dashboard */}
+      <NewTenantModal
+        isOpen={isNewTenantModalOpen}
+        onClose={() => setIsNewTenantModalOpen(false)}
       />
     </div>
   );
@@ -233,8 +108,8 @@ const CrmApp: React.FC = () => {
 
 export default function App() {
   return (
-    <CrmProvider>
-      <CrmApp />
-    </CrmProvider>
+    <AltivioProvider>
+      <AltivioAppMain />
+    </AltivioProvider>
   );
 }

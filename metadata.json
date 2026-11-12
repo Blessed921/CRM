@@ -1,6 +1,6 @@
 {
-  "name": "DevAgency CRM",
-  "description": "Client management and technical business setup platform for software development agencies.",
+  "name": "Altivio OS",
+  "description": "Multi-tenant client revenue & operations dashboard shipped with every website Altivio delivers.",
   "requestFramePermissions": [],
   "majorCapabilities": [
     "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
