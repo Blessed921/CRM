@@ -1,4 +1,9 @@
-import {createRoot} from 'react-dom/client';
+/**
+ * Copyright (c) 2026 Altivio Ltd. All rights reserved.
+ * Proprietary and confidential.
+ */
+
+import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
 

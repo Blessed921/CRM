@@ -1,14 +1,20 @@
-import { Tenant } from '../types/altivio';
+/**
+ * Copyright (c) 2026 Altivio Ltd. All rights reserved.
+ * Proprietary and confidential.
+ */
 
-export const INITIAL_TENANTS: Tenant[] = [
+import { Tenant } from '../src/types/altivio';
+
+export const SEED_TENANTS: Tenant[] = [
   {
     id: 't-apex-dental',
+    slug: 'apex-dental',
     name: 'Apex Dental Studio',
     tagline: 'High-end cosmetic dentistry & smile restorations.',
     subdomain: 'apexdental.altivio.app',
     customDomain: 'www.apexdentalstudio.com',
     logoInitials: 'AD',
-    brandAccentHex: '#0ea5e9', // Sky blue
+    brandAccentHex: '#0284c7',
     industry: 'Healthcare & Aesthetics',
     ownerName: 'Dr. Julian Sterling',
     ownerEmail: 'dr.sterling@apexdentalstudio.com',
@@ -28,7 +34,7 @@ export const INITIAL_TENANTS: Tenant[] = [
       prevMonthlyRevenue: 41200,
       conversionsCount: 38,
       conversionRate: 4.8,
-      roiMultiplier: 121.8, // $48,600 / $399
+      roiMultiplier: 121.8,
       trafficMonthly: 3820,
       avgValue: 1278,
     },
@@ -51,7 +57,8 @@ export const INITIAL_TENANTS: Tenant[] = [
         email: 'victoria.v@gmail.com',
         phone: '+1 (555) 392-1084',
         subjectOrService: 'Full Porcelain Veneers Consultation',
-        message: 'Looking for a complete upper arch veneer consultation. Interested in natural translucency.',
+        message:
+          'Looking for a complete upper arch veneer consultation. Interested in natural translucency.',
         sourcePage: '/porcelain-veneers',
         referralSource: 'Google Local Search (SEO)',
         createdAt: '12 mins ago',
@@ -97,7 +104,8 @@ export const INITIAL_TENANTS: Tenant[] = [
         id: 'cb-2',
         section: 'Top Announcement Bar',
         label: 'Notice Text',
-        content: '✨ Complimentary 3D Smile Simulation with every Invisalign consultation this November.',
+        content:
+          'Complimentary 3D Smile Simulation with every Invisalign consultation this November.',
         lastUpdated: 'Nov 1, 2026',
       },
       {
@@ -109,8 +117,20 @@ export const INITIAL_TENANTS: Tenant[] = [
       },
     ],
     teamMembers: [
-      { id: 'tm-1', name: 'Dr. Julian Sterling', email: 'dr.sterling@apexdentalstudio.com', role: 'Owner', avatarInitials: 'JS' },
-      { id: 'tm-2', name: 'Amanda Clarke', email: 'amanda@apexdentalstudio.com', role: 'Manager', avatarInitials: 'AC' },
+      {
+        id: 'tm-1',
+        name: 'Dr. Julian Sterling',
+        email: 'dr.sterling@apexdentalstudio.com',
+        role: 'Owner',
+        avatarInitials: 'JS',
+      },
+      {
+        id: 'tm-2',
+        name: 'Amanda Clarke',
+        email: 'amanda@apexdentalstudio.com',
+        role: 'Manager',
+        avatarInitials: 'AC',
+      },
     ],
     supportTickets: [
       {
@@ -258,12 +278,13 @@ export const INITIAL_TENANTS: Tenant[] = [
   },
   {
     id: 't-kova-atelier',
+    slug: 'kova-atelier',
     name: 'Kova Atelier',
     tagline: 'Architectural apparel & handcrafted leather goods.',
     subdomain: 'kova.altivio.app',
     customDomain: 'www.kova-atelier.com',
     logoInitials: 'KA',
-    brandAccentHex: '#6366f1', // Indigo
+    brandAccentHex: '#7c3aed',
     industry: 'Fashion & E-Commerce Store',
     ownerName: 'Mireille Kova',
     ownerEmail: 'mireille@kova-atelier.com',
@@ -283,13 +304,23 @@ export const INITIAL_TENANTS: Tenant[] = [
       prevMonthlyRevenue: 31800,
       conversionsCount: 218,
       conversionRate: 3.4,
-      roiMultiplier: 77.0, // $38,450 / $499
+      roiMultiplier: 77.0,
       trafficMonthly: 6420,
       avgValue: 176,
     },
     trafficSources: [
-      { source: 'Instagram Stories & Influencers', visitors: 3180, revenue: 21400, conversionRate: 3.8 },
-      { source: 'Organic Google Search (SEO)', visitors: 1940, revenue: 11200, conversionRate: 3.2 },
+      {
+        source: 'Instagram Stories & Influencers',
+        visitors: 3180,
+        revenue: 21400,
+        conversionRate: 3.8,
+      },
+      {
+        source: 'Organic Google Search (SEO)',
+        visitors: 1940,
+        revenue: 11200,
+        conversionRate: 3.2,
+      },
       { source: 'Direct / Brand Repeat', visitors: 980, revenue: 4600, conversionRate: 4.1 },
       { source: 'Email Newsletter (Klaviyo)', visitors: 320, revenue: 1250, conversionRate: 3.9 },
     ],
@@ -306,7 +337,8 @@ export const INITIAL_TENANTS: Tenant[] = [
         email: 'claire@parisianstyle.fr',
         phone: '+33 6 49 10 22 99',
         subjectOrService: 'Wholesale & Boutique Stockist Inquiry',
-        message: 'Interested in stocking your structured leather tote in our boutique in Le Marais, Paris.',
+        message:
+          'Interested in stocking your structured leather tote in our boutique in Le Marais, Paris.',
         sourcePage: '/wholesale-stockists',
         referralSource: 'Organic Google Search (SEO)',
         createdAt: '1 hour ago',
@@ -331,8 +363,20 @@ export const INITIAL_TENANTS: Tenant[] = [
       },
     ],
     teamMembers: [
-      { id: 'tm-3', name: 'Mireille Kova', email: 'mireille@kova-atelier.com', role: 'Owner', avatarInitials: 'MK' },
-      { id: 'tm-4', name: 'Leah Stern', email: 'leah@kova-atelier.com', role: 'Staff', avatarInitials: 'LS' },
+      {
+        id: 'tm-3',
+        name: 'Mireille Kova',
+        email: 'mireille@kova-atelier.com',
+        role: 'Owner',
+        avatarInitials: 'MK',
+      },
+      {
+        id: 'tm-4',
+        name: 'Leah Stern',
+        email: 'leah@kova-atelier.com',
+        role: 'Staff',
+        avatarInitials: 'LS',
+      },
     ],
     supportTickets: [
       {
@@ -385,15 +429,75 @@ export const INITIAL_TENANTS: Tenant[] = [
         },
       ],
       products: [
-        { id: 'p-1', name: 'Wool Cocoon Coat', sku: 'KV-WCC-01', price: 395, stock: 14, category: 'Outerwear', status: 'in-stock', totalSold: 142 },
-        { id: 'p-2', name: 'Structured Leather Tote', sku: 'KV-SLT-02', price: 340, stock: 4, category: 'Bags & Leather', status: 'low-stock', totalSold: 88 },
-        { id: 'p-3', name: 'Pleated Poplin Overshirt', sku: 'KV-PPO-03', price: 165, stock: 26, category: 'Tops', status: 'in-stock', totalSold: 64 },
-        { id: 'p-4', name: 'Italian Saddle Leather Belt', sku: 'KV-ISB-04', price: 95, stock: 0, category: 'Accessories', status: 'out-of-stock', totalSold: 98 },
+        {
+          id: 'p-1',
+          name: 'Wool Cocoon Coat',
+          sku: 'KV-WCC-01',
+          price: 395,
+          stock: 14,
+          category: 'Outerwear',
+          status: 'in-stock',
+          totalSold: 142,
+        },
+        {
+          id: 'p-2',
+          name: 'Structured Leather Tote',
+          sku: 'KV-SLT-02',
+          price: 340,
+          stock: 4,
+          category: 'Bags & Leather',
+          status: 'low-stock',
+          totalSold: 88,
+        },
+        {
+          id: 'p-3',
+          name: 'Pleated Poplin Overshirt',
+          sku: 'KV-PPO-03',
+          price: 165,
+          stock: 26,
+          category: 'Tops',
+          status: 'in-stock',
+          totalSold: 64,
+        },
+        {
+          id: 'p-4',
+          name: 'Italian Saddle Leather Belt',
+          sku: 'KV-ISB-04',
+          price: 95,
+          stock: 0,
+          category: 'Accessories',
+          status: 'out-of-stock',
+          totalSold: 98,
+        },
       ],
       customers: [
-        { id: 'c-1', name: 'Astrid Lindau', email: 'astrid.l@nordic.de', ordersCount: 3, totalSpent: 1240, lastOrderDate: 'Nov 12, 2026', segment: 'VIP Customer' },
-        { id: 'c-2', name: 'Marcus Bennett', email: 'm.bennett@nyc.com', ordersCount: 1, totalSpent: 340, lastOrderDate: 'Nov 12, 2026', segment: 'First-time' },
-        { id: 'c-3', name: 'Naomi Campbell-Reed', email: 'naomi.cr@gmail.com', ordersCount: 2, totalSpent: 580, lastOrderDate: 'Nov 11, 2026', segment: 'Repeat Buyer' },
+        {
+          id: 'c-1',
+          name: 'Astrid Lindau',
+          email: 'astrid.l@nordic.de',
+          ordersCount: 3,
+          totalSpent: 1240,
+          lastOrderDate: 'Nov 12, 2026',
+          segment: 'VIP Customer',
+        },
+        {
+          id: 'c-2',
+          name: 'Marcus Bennett',
+          email: 'm.bennett@nyc.com',
+          ordersCount: 1,
+          totalSpent: 340,
+          lastOrderDate: 'Nov 12, 2026',
+          segment: 'First-time',
+        },
+        {
+          id: 'c-3',
+          name: 'Naomi Campbell-Reed',
+          email: 'naomi.cr@gmail.com',
+          ordersCount: 2,
+          totalSpent: 580,
+          lastOrderDate: 'Nov 11, 2026',
+          segment: 'Repeat Buyer',
+        },
       ],
       abandonedCarts: [
         {
@@ -402,7 +506,7 @@ export const INITIAL_TENANTS: Tenant[] = [
           cartValue: 395,
           itemsCount: 1,
           abandonedAt: '3 hours ago',
-          emailRecoverySent: true,
+          emailRecoverySent: false,
           recovered: false,
         },
         {
@@ -416,19 +520,36 @@ export const INITIAL_TENANTS: Tenant[] = [
         },
       ],
       discounts: [
-        { id: 'd-1', code: 'WINTER15', discountType: 'percentage', value: 15, usageCount: 68, usageLimit: 150, status: 'active' },
-        { id: 'd-2', code: 'WELCOME10', discountType: 'fixed', value: 20, usageCount: 114, usageLimit: 500, status: 'active' },
+        {
+          id: 'd-1',
+          code: 'WINTER15',
+          discountType: 'percentage',
+          value: 15,
+          usageCount: 68,
+          usageLimit: 150,
+          status: 'active',
+        },
+        {
+          id: 'd-2',
+          code: 'WELCOME10',
+          discountType: 'fixed',
+          value: 20,
+          usageCount: 114,
+          usageLimit: 500,
+          status: 'active',
+        },
       ],
     },
   },
   {
     id: 't-summit-hvac',
+    slug: 'summit-hvac',
     name: 'Summit HVAC & Electrical',
     tagline: 'Licensed residential & commercial climate systems.',
     subdomain: 'summit.altivio.app',
     customDomain: 'www.summithvacservices.com',
     logoInitials: 'SH',
-    brandAccentHex: '#f59e0b', // Amber
+    brandAccentHex: '#d97706',
     industry: 'Home Services & Contractors',
     ownerName: 'Ron Gallagher',
     ownerEmail: 'ron@summithvacservices.com',
@@ -448,12 +569,17 @@ export const INITIAL_TENANTS: Tenant[] = [
       prevMonthlyRevenue: 44000,
       conversionsCount: 46,
       conversionRate: 5.2,
-      roiMultiplier: 150.1, // $52,400 / $349
+      roiMultiplier: 150.1,
       trafficMonthly: 4100,
       avgValue: 1139,
     },
     trafficSources: [
-      { source: 'Google Local Emergency Keywords', visitors: 2600, revenue: 38200, conversionRate: 6.2 },
+      {
+        source: 'Google Local Emergency Keywords',
+        visitors: 2600,
+        revenue: 38200,
+        conversionRate: 6.2,
+      },
       { source: 'Google Maps Place Listing', visitors: 1100, revenue: 11400, conversionRate: 4.5 },
       { source: 'Direct / Existing Contract', visitors: 400, revenue: 2800, conversionRate: 3.5 },
     ],
@@ -482,12 +608,19 @@ export const INITIAL_TENANTS: Tenant[] = [
         id: 'cb-6',
         section: 'Emergency Banner',
         label: 'Dispatch Status',
-        content: '🚨 24/7 Emergency Dispatch Active: Technicians available in Metro Denver & Boulder within 90 minutes.',
+        content:
+          '24/7 Emergency Dispatch Active: Technicians available in Metro Denver & Boulder within 90 minutes.',
         lastUpdated: 'Nov 10, 2026',
       },
     ],
     teamMembers: [
-      { id: 'tm-5', name: 'Ron Gallagher', email: 'ron@summithvacservices.com', role: 'Owner', avatarInitials: 'RG' },
+      {
+        id: 'tm-5',
+        name: 'Ron Gallagher',
+        email: 'ron@summithvacservices.com',
+        role: 'Owner',
+        avatarInitials: 'RG',
+      },
     ],
     supportTickets: [],
     serviceData: {

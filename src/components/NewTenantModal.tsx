@@ -1,24 +1,24 @@
+/**
+ * Copyright (c) 2026 Altivio Ltd. All rights reserved.
+ * Proprietary and confidential.
+ */
+
 import React, { useState } from 'react';
-import { useAltivio } from '../context/AltivioContext';
-import { Tenant, BusinessModule } from '../types/altivio';
-import { X, Sparkles, Layers, Globe, ShieldCheck } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useAdminFleet } from '../context/AdminFleetContext';
+import type { Tenant, BusinessModule } from '../types/altivio';
+import { X } from 'lucide-react';
 
 interface NewTenantModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const COLOR_PRESETS = [
-  '#0ea5e9', // Sky Blue
-  '#6366f1', // Indigo
-  '#10b981', // Emerald
-  '#f59e0b', // Amber
-  '#ec4899', // Pink / Rose
-  '#8b5cf6', // Violet
-];
+const COLOR_PRESETS = ['#0284c7', '#4f46e5', '#059669', '#d97706', '#db2777', '#7c3aed'];
 
 export const NewTenantModal: React.FC<NewTenantModalProps> = ({ isOpen, onClose }) => {
-  const { provisionNewTenant } = useAltivio();
+  const { provisionNewTenant } = useAdminFleet();
+  const navigate = useNavigate();
 
   const [name, setName] = useState('');
   const [tagline, setTagline] = useState('');
@@ -28,35 +28,49 @@ export const NewTenantModal: React.FC<NewTenantModalProps> = ({ isOpen, onClose 
   const [ownerName, setOwnerName] = useState('');
   const [ownerEmail, setOwnerEmail] = useState('');
   const [activeModule, setActiveModule] = useState<BusinessModule>('service');
-  const [brandAccentHex, setBrandAccentHex] = useState('#0ea5e9');
+  const [brandAccentHex, setBrandAccentHex] = useState('#0284c7');
   const [monthlyWebsiteFee, setMonthlyWebsiteFee] = useState<number>(399);
+  const [submitting, setSubmitting] = useState(false);
 
   if (!isOpen) return null;
 
   const handleNameChange = (val: string) => {
     setName(val);
+    const slug = val
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '');
     if (!subdomain || subdomain.includes('altivio.app')) {
-      const slug = val.toLowerCase().replace(/[^a-z0-9]/g, '');
       setSubdomain(`${slug || 'client'}.altivio.app`);
       if (!customDomain) {
-        setCustomDomain(`www.${slug || 'client'}.com`);
+        setCustomDomain(`www.${(slug || 'client').replace(/-/g, '')}.com`);
       }
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !subdomain.trim()) return;
+    setSubmitting(true);
 
-    const initials = name
-      .trim()
-      .split(' ')
-      .slice(0, 2)
-      .map((w) => w[0]?.toUpperCase())
-      .join('') || 'NW';
+    const slug =
+      name
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, '') || `client-${Date.now()}`;
+
+    const initials =
+      name
+        .trim()
+        .split(' ')
+        .slice(0, 2)
+        .map((w) => w[0]?.toUpperCase())
+        .join('') || 'NW';
 
     const newTenant: Tenant = {
       id: `t-${Date.now()}`,
+      slug: `${slug}-${Math.floor(100 + Math.random() * 900)}`,
       name: name.trim(),
       tagline: tagline.trim() || 'Premier modern website engineered by Altivio.',
       subdomain: subdomain.trim(),
@@ -65,7 +79,7 @@ export const NewTenantModal: React.FC<NewTenantModalProps> = ({ isOpen, onClose 
       brandAccentHex,
       industry,
       ownerName: ownerName.trim() || 'Business Owner',
-      ownerEmail: ownerEmail.trim() || 'owner@clientdomain.com',
+      ownerEmail: ownerEmail.trim() || `owner@${slug}.com`,
       activeModule,
       websitePlan: `Altivio Growth Website + ${activeModule === 'service' ? 'Service Engine' : 'Shop Engine'}`,
       monthlyWebsiteFee: Number(monthlyWebsiteFee) || 399,
@@ -79,7 +93,7 @@ export const NewTenantModal: React.FC<NewTenantModalProps> = ({ isOpen, onClose 
       },
       revenueProof: {
         monthlyRevenue: 12400,
-        prevMonthlyRevenue: 0,
+        prevMonthlyRevenue: 8900,
         conversionsCount: 14,
         conversionRate: 4.1,
         roiMultiplier: Number((12400 / (monthlyWebsiteFee || 399)).toFixed(1)),
@@ -103,7 +117,8 @@ export const NewTenantModal: React.FC<NewTenantModalProps> = ({ isOpen, onClose 
           email: 'sarah.j@outlook.com',
           phone: '+1 (555) 234-5678',
           subjectOrService: 'New Client Inquiry',
-          message: 'Found you through Google search. Would love to schedule an introductory consultation.',
+          message:
+            'Found you through Google search. Would love to schedule an introductory consultation.',
           sourcePage: '/contact',
           referralSource: 'Google Local Search (SEO)',
           createdAt: '10 mins ago',
@@ -131,7 +146,7 @@ export const NewTenantModal: React.FC<NewTenantModalProps> = ({ isOpen, onClose 
         {
           id: `tm-${Date.now()}-1`,
           name: ownerName.trim() || 'Business Owner',
-          email: ownerEmail.trim() || 'owner@clientdomain.com',
+          email: ownerEmail.trim() || `owner@${slug}.com`,
           role: 'Owner',
           avatarInitials: initials,
         },
@@ -264,36 +279,38 @@ export const NewTenantModal: React.FC<NewTenantModalProps> = ({ isOpen, onClose 
       },
     };
 
-    provisionNewTenant(newTenant);
-    onClose();
+    try {
+      const created = await provisionNewTenant(newTenant);
+      onClose();
+      navigate(`/app/${created.slug}/overview`);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-xs flex items-center justify-center p-4">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-lg p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-xs flex items-center justify-center p-4">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl w-full max-w-lg p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto text-slate-900 dark:text-slate-100">
         <button
+          type="button"
           onClick={onClose}
-          className="absolute top-5 right-5 text-slate-400 hover:text-white"
+          aria-label="Close modal"
+          className="absolute top-5 right-5 text-slate-400 hover:text-slate-700 dark:hover:text-white"
         >
           <X className="w-5 h-5" />
         </button>
 
-        <div className="flex items-center gap-2">
-          <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-indigo-950 text-indigo-300 border border-indigo-800">
-            Altivio Provisioning
-          </span>
-          <span className="text-slate-400 text-xs">Deploy Client Dashboard</span>
+        <div className="text-xs text-indigo-600 dark:text-indigo-400 font-medium">
+          Altivio Provisioning · New Client Instance
         </div>
-        <h2 className="text-lg font-bold text-white mt-1 font-display">
-          Ship New Client Website Platform
-        </h2>
-        <p className="text-xs text-slate-400 mt-0.5">
-          Provision a dedicated multi-tenant dashboard instance for a newly delivered client site.
+        <h2 className="text-lg font-bold mt-1 font-display">Ship New Client Website Platform</h2>
+        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+          Provision an isolated multi-tenant dashboard for a newly delivered client site.
         </p>
 
         <form onSubmit={handleSubmit} className="mt-5 space-y-4">
           <div>
-            <label className="block text-[11px] font-medium text-slate-300 mb-1">
+            <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
               Client Business Name *
             </label>
             <input
@@ -302,13 +319,40 @@ export const NewTenantModal: React.FC<NewTenantModalProps> = ({ isOpen, onClose 
               placeholder="e.g. Beacon Architectural Studio"
               value={name}
               onChange={(e) => handleNameChange(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500 font-medium"
+              className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-indigo-500 font-medium"
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-[11px] font-medium text-slate-300 mb-1">
+              <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                Owner Name
+              </label>
+              <input
+                type="text"
+                placeholder="e.g. Clara Sterling"
+                value={ownerName}
+                onChange={(e) => setOwnerName(e.target.value)}
+                className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-indigo-500"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                Owner Login Email
+              </label>
+              <input
+                type="email"
+                placeholder="clara@beaconarch.com"
+                value={ownerEmail}
+                onChange={(e) => setOwnerEmail(e.target.value)}
+                className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-xs font-mono focus:outline-none focus:border-indigo-500"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
                 Altivio Subdomain *
               </label>
               <input
@@ -317,11 +361,11 @@ export const NewTenantModal: React.FC<NewTenantModalProps> = ({ isOpen, onClose 
                 placeholder="beacon.altivio.app"
                 value={subdomain}
                 onChange={(e) => setSubdomain(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-indigo-500"
+                className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-xs font-mono focus:outline-none focus:border-indigo-500"
               />
             </div>
             <div>
-              <label className="block text-[11px] font-medium text-slate-300 mb-1">
+              <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
                 Custom Domain *
               </label>
               <input
@@ -330,26 +374,25 @@ export const NewTenantModal: React.FC<NewTenantModalProps> = ({ isOpen, onClose 
                 placeholder="www.beaconarch.com"
                 value={customDomain}
                 onChange={(e) => setCustomDomain(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-indigo-500"
+                className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-xs font-mono focus:outline-none focus:border-indigo-500"
               />
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-[11px] font-medium text-slate-300 mb-1">
+              <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
                 Industry Sector
               </label>
               <input
                 type="text"
-                placeholder="e.g. Architecture & Design"
                 value={industry}
                 onChange={(e) => setIndustry(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500"
+                className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-indigo-500"
               />
             </div>
             <div>
-              <label className="block text-[11px] font-medium text-slate-300 mb-1">
+              <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
                 Monthly Retainer Fee ($/mo)
               </label>
               <input
@@ -357,52 +400,63 @@ export const NewTenantModal: React.FC<NewTenantModalProps> = ({ isOpen, onClose 
                 min="99"
                 value={monthlyWebsiteFee}
                 onChange={(e) => setMonthlyWebsiteFee(Number(e.target.value))}
-                className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-indigo-500"
+                className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-xs font-mono focus:outline-none focus:border-indigo-500"
               />
             </div>
           </div>
 
-          {/* Module Selection (Service vs Shop) */}
           <div>
-            <label className="block text-[11px] font-medium text-slate-300 mb-1.5">
+            <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Tagline
+            </label>
+            <input
+              type="text"
+              placeholder="Bespoke architectural spaces..."
+              value={tagline}
+              onChange={(e) => setTagline(e.target.value)}
+              className="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-indigo-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
               Select Client Business Engine *
             </label>
             <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
                 onClick={() => setActiveModule('service')}
-                className={`p-3 rounded-xl border text-left transition-colors ${
+                className={`p-3 rounded-xl border text-left transition-colors cursor-pointer ${
                   activeModule === 'service'
-                    ? 'bg-indigo-950/60 border-indigo-500 text-white shadow-xs'
-                    : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-200'
+                    ? 'bg-indigo-50 dark:bg-indigo-950/60 border-indigo-500 text-slate-900 dark:text-white'
+                    : 'bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400'
                 }`}
               >
-                <div className="font-semibold text-xs text-white">Service Engine</div>
-                <div className="text-[11px] text-slate-400 mt-0.5">
-                  Leads pipeline, quotes, invoices, and automated follow-ups.
+                <div className="font-semibold text-xs">Service Engine</div>
+                <div className="text-[11px] opacity-80 mt-0.5">
+                  Leads pipeline, quotes, invoices, follow-ups.
                 </div>
               </button>
 
               <button
                 type="button"
                 onClick={() => setActiveModule('shop')}
-                className={`p-3 rounded-xl border text-left transition-colors ${
+                className={`p-3 rounded-xl border text-left transition-colors cursor-pointer ${
                   activeModule === 'shop'
-                    ? 'bg-indigo-950/60 border-indigo-500 text-white shadow-xs'
-                    : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-200'
+                    ? 'bg-indigo-50 dark:bg-indigo-950/60 border-indigo-500 text-slate-900 dark:text-white'
+                    : 'bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400'
                 }`}
               >
-                <div className="font-semibold text-xs text-white">Shop Engine</div>
-                <div className="text-[11px] text-slate-400 mt-0.5">
-                  Orders, product stock, customers, abandoned carts, and discounts.
+                <div className="font-semibold text-xs">Shop Engine</div>
+                <div className="text-[11px] opacity-80 mt-0.5">
+                  Orders, products, customers, abandoned carts.
                 </div>
               </button>
             </div>
           </div>
 
-          {/* Brand Accent Color */}
           <div>
-            <label className="block text-[11px] font-medium text-slate-300 mb-1.5">
+            <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
               Client Brand Accent Color
             </label>
             <div className="flex items-center gap-2">
@@ -411,31 +465,34 @@ export const NewTenantModal: React.FC<NewTenantModalProps> = ({ isOpen, onClose 
                   key={color}
                   type="button"
                   onClick={() => setBrandAccentHex(color)}
-                  className={`w-7 h-7 rounded-lg transition-transform ${
-                    brandAccentHex === color ? 'ring-2 ring-white scale-110' : 'opacity-80 hover:opacity-100'
+                  className={`w-7 h-7 rounded-lg transition-transform cursor-pointer ${
+                    brandAccentHex === color
+                      ? 'ring-2 ring-slate-900 dark:ring-white scale-110'
+                      : 'opacity-80 hover:opacity-100'
                   }`}
                   style={{ backgroundColor: color }}
                 />
               ))}
-              <span className="text-[11px] font-mono text-slate-400 ml-2">
+              <span className="text-xs font-mono text-slate-500 dark:text-slate-400 ml-2">
                 {brandAccentHex}
               </span>
             </div>
           </div>
 
-          <div className="flex items-center justify-end gap-2 pt-4 border-t border-slate-800">
+          <div className="flex items-center justify-end gap-2 pt-4 border-t border-slate-200 dark:border-slate-800">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-xs text-slate-400 hover:text-white"
+              className="px-4 py-2 text-xs text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-xl transition-colors shadow-sm"
+              disabled={submitting}
+              className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white text-xs font-semibold rounded-xl transition-colors cursor-pointer"
             >
-              Provision & Launch Dashboard
+              {submitting ? 'Provisioning...' : 'Provision & Launch Dashboard'}
             </button>
           </div>
         </form>

@@ -1,3 +1,8 @@
+/**
+ * Copyright (c) 2026 Altivio Ltd. All rights reserved.
+ * Proprietary and confidential.
+ */
+
 export type BusinessModule = 'service' | 'shop';
 
 export type AltivioViewMode = 'tenant' | 'altivio-admin';
@@ -188,11 +193,20 @@ export interface DiscountCode {
   status: 'active' | 'expired';
 }
 
-// ------------------------------------------------------------------
-// Tenant Definition
-// ------------------------------------------------------------------
+export type UserRole = 'altivio_admin' | 'client_owner';
+
+export interface AuthUser {
+  id: string;
+  email: string;
+  name: string;
+  role: UserRole;
+  tenantId?: string;
+  tenantSlug?: string;
+}
+
 export interface Tenant {
   id: string;
+  slug: string;
   name: string;
   tagline: string;
   subdomain: string;
@@ -214,7 +228,7 @@ export interface Tenant {
   contentBlocks: ContentBlock[];
   teamMembers: TeamMember[];
   supportTickets: SupportTicket[];
-  
+
   // Module-specific data
   serviceData?: {
     leads: ServiceLead[];

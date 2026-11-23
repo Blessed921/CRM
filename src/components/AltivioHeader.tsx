@@ -1,132 +1,148 @@
+/**
+ * Copyright (c) 2026 Altivio Ltd. All rights reserved.
+ * Proprietary and confidential.
+ */
+
 import React from 'react';
-import { useAltivio } from '../context/AltivioContext';
-import { 
-  Globe, 
-  ExternalLink, 
-  Layers, 
-  ShieldCheck, 
-  TrendingUp, 
-  Plus, 
-  Sparkles,
-  RefreshCw,
-  Sliders
-} from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
+import type { Tenant } from '../types/altivio';
+import { ExternalLink, Plus, Sun, Moon, LogOut, Menu, ArrowLeft } from 'lucide-react';
 
 interface AltivioHeaderProps {
-  onOpenNewClientModal: () => void;
+  mode: 'tenant' | 'admin';
+  tenant?: Tenant;
+  onOpenMobileNav?: () => void;
+  onOpenNewClientModal?: () => void;
 }
 
-export const AltivioHeader: React.FC<AltivioHeaderProps> = ({ onOpenNewClientModal }) => {
-  const { 
-    tenants, 
-    activeTenant, 
-    setActiveTenantId, 
-    viewMode, 
-    setViewMode, 
-    resetToDefaults 
-  } = useAltivio();
+export const AltivioHeader: React.FC<AltivioHeaderProps> = ({
+  mode,
+  tenant,
+  onOpenMobileNav,
+  onOpenNewClientModal,
+}) => {
+  const { user, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
 
   return (
-    <header className="h-16 px-6 border-b border-slate-800/80 bg-slate-900/70 backdrop-blur-md flex items-center justify-between gap-6 shrink-0 z-20">
-      {/* Zone 1: Current Tenant & Live Domain */}
+    <header className="h-16 px-4 sm:px-6 border-b border-slate-200 dark:border-slate-800 bg-white/85 dark:bg-slate-900/75 backdrop-blur-md flex items-center justify-between gap-4 shrink-0 z-20">
+      {/* Zone 1: Brand / Current Tenant Identity */}
       <div className="flex items-center gap-3 min-w-0">
-        {viewMode === 'tenant' ? (
+        {mode === 'tenant' && onOpenMobileNav && (
+          <button
+            type="button"
+            onClick={onOpenMobileNav}
+            aria-label="Open navigation menu"
+            className="lg:hidden p-2 -ml-1 rounded-lg border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+          >
+            <Menu className="w-4 h-4" />
+          </button>
+        )}
+
+        {mode === 'tenant' && tenant ? (
           <div className="flex items-center gap-2.5 min-w-0">
-            <div 
-              className="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs text-white font-mono shadow-xs shrink-0"
-              style={{ backgroundColor: activeTenant.brandAccentHex || '#6366f1' }}
+            <div
+              className="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs text-white font-mono shrink-0"
+              style={{ backgroundColor: tenant.brandAccentHex || '#4f46e5' }}
             >
-              {activeTenant.logoInitials}
+              {tenant.logoInitials}
             </div>
             <div className="min-w-0">
-              <div className="flex items-center gap-2">
-                <span className="font-bold text-white text-xs truncate font-display">
-                  {activeTenant.name}
-                </span>
-                <span className="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
-                  {activeTenant.activeModule.toUpperCase()} ENGINE
-                </span>
+              <div className="text-xs font-bold text-slate-900 dark:text-white truncate font-display">
+                {tenant.name}
               </div>
-              <a
-                href={`https://${activeTenant.customDomain}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[11px] text-slate-400 hover:text-indigo-300 flex items-center gap-1 font-mono transition-colors truncate"
-              >
-                <span>{activeTenant.customDomain}</span>
-                <ExternalLink className="w-2.5 h-2.5 shrink-0" />
-              </a>
+              <div className="flex items-center gap-1.5 text-[11px] text-slate-500 dark:text-slate-400 font-mono truncate">
+                <a
+                  href={`https://${tenant.customDomain}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:underline inline-flex items-center gap-1 truncate"
+                >
+                  <span>{tenant.customDomain}</span>
+                  <ExternalLink className="w-2.5 h-2.5 shrink-0" />
+                </a>
+                <span aria-hidden="true">·</span>
+                <span>{tenant.activeModule === 'service' ? 'Service Engine' : 'Shop Engine'}</span>
+              </div>
             </div>
           </div>
         ) : (
-          <div className="flex items-center gap-2 text-xs">
-            <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-mono font-bold text-xs shadow-xs">
-              ALT
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-mono font-bold text-xs shrink-0">
+              AL
             </div>
-            <div>
-              <div className="font-bold text-white font-display">Altivio Partner Console</div>
-              <div className="text-[11px] text-slate-400">Multi-Tenant Client Websites Fleet</div>
+            <div className="min-w-0">
+              <div className="text-xs font-bold text-slate-900 dark:text-white font-display truncate">
+                Altivio Partner Console
+              </div>
+              <div className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
+                Agency Fleet Operations
+              </div>
             </div>
           </div>
         )}
       </div>
 
-      {/* Zone 2: Fast Tenant Switcher Dropdown */}
-      <div className="hidden md:flex items-center gap-3 text-xs">
-        <span className="text-slate-400 text-[11px]">Client Site:</span>
-        <select
-          value={activeTenant.id}
-          onChange={(e) => {
-            setActiveTenantId(e.target.value);
-            if (viewMode === 'altivio-admin') setViewMode('tenant');
-          }}
-          className="bg-slate-950/80 border border-slate-750 hover:border-slate-600 rounded-lg px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500 font-medium transition-colors cursor-pointer shadow-xs"
-        >
-          {tenants.map((t) => (
-            <option key={t.id} value={t.id}>
-              {t.name} ({t.activeModule === 'service' ? 'Service Engine' : 'Shop Engine'})
-            </option>
-          ))}
-        </select>
-
-        <span className="text-slate-700">|</span>
-
-        <button
-          onClick={resetToDefaults}
-          title="Reset to initial sample tenants"
-          className="text-slate-400 hover:text-slate-200 text-xs flex items-center gap-1 transition-colors"
-        >
-          <RefreshCw className="w-3 h-3" />
-          <span>Reset Sample Data</span>
-        </button>
+      {/* Zone 2: Authenticated Context (Admin Return Link if Admin Inspecting Tenant) */}
+      <div className="hidden md:flex items-center gap-4 text-xs">
+        {mode === 'tenant' && user?.role === 'altivio_admin' && (
+          <Link
+            to="/admin"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/70 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium whitespace-nowrap transition-colors"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>Back to Fleet Console</span>
+          </Link>
+        )}
       </div>
 
-      {/* Zone 3: Mode Switcher & Altivio Admin Action */}
+      {/* Zone 3: Theme Toggle, Admin Deploy Action, User & Sign Out */}
       <div className="flex items-center gap-2.5 shrink-0">
-        {/* Toggle between Client Portal vs Altivio Master Admin */}
-        <button
-          onClick={() => setViewMode(viewMode === 'tenant' ? 'altivio-admin' : 'tenant')}
-          className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors ${
-            viewMode === 'altivio-admin'
-              ? 'bg-indigo-600 text-white border-indigo-500 shadow-sm'
-              : 'bg-slate-950 text-indigo-300 border-indigo-500/30 hover:border-indigo-500/60'
-          }`}
-        >
-          <Sliders className="w-3.5 h-3.5" />
-          <span>
-            {viewMode === 'altivio-admin' ? 'Viewing Altivio Fleet' : 'Altivio Master Admin'}
-          </span>
-        </button>
-
-        {viewMode === 'altivio-admin' && (
+        {mode === 'admin' && onOpenNewClientModal && (
           <button
+            type="button"
             onClick={onOpenNewClientModal}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-lg transition-colors whitespace-nowrap shadow-sm"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors whitespace-nowrap cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
-            <span>Deploy Client Dashboard</span>
+            <span className="hidden sm:inline">Deploy Client Dashboard</span>
+            <span className="sm:hidden">Deploy</span>
           </button>
         )}
+
+        <button
+          type="button"
+          onClick={toggleTheme}
+          aria-label="Toggle light or dark mode"
+          className="p-2 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+        >
+          {theme === 'light' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
+        </button>
+
+        {user && (
+          <div className="hidden sm:flex items-center gap-2 pl-2 border-l border-slate-200 dark:border-slate-800 text-xs">
+            <div className="text-right">
+              <div className="font-medium text-slate-900 dark:text-white leading-tight">
+                {user.name}
+              </div>
+              <div className="text-[10px] font-mono text-slate-500 dark:text-slate-400">
+                {user.role === 'altivio_admin' ? 'Altivio Admin' : 'Client Owner'}
+              </div>
+            </div>
+          </div>
+        )}
+
+        <button
+          type="button"
+          onClick={logout}
+          title="Sign out"
+          className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors whitespace-nowrap cursor-pointer"
+        >
+          <LogOut className="w-3.5 h-3.5" />
+          <span className="hidden md:inline">Sign Out</span>
+        </button>
       </div>
     </header>
   );

@@ -1,344 +1,363 @@
+/**
+ * Copyright (c) 2026 Altivio Ltd. All rights reserved.
+ * Proprietary and confidential.
+ */
+
 import React from 'react';
-import { useAltivio } from '../context/AltivioContext';
-import { TenantTab } from '../types/altivio';
-import { 
-  DollarSign, 
-  TrendingUp, 
-  Mail, 
-  GitBranch, 
-  FileText, 
-  Receipt, 
-  Clock, 
-  ShoppingCart, 
-  Package, 
-  Users, 
-  RotateCcw, 
-  Tag, 
-  Edit3, 
-  Activity, 
-  Award, 
-  Headphones,
-  CheckCircle2,
+import { NavLink } from 'react-router-dom';
+import { useTenant } from '../context/TenantContext';
+import {
+  DollarSign,
+  BarChart3,
+  Mail,
   Sparkles,
-  ArrowUpRight,
-  BarChart3
+  GitBranch,
+  FileText,
+  Receipt,
+  Clock,
+  ShoppingCart,
+  Package,
+  Users,
+  RotateCcw,
+  Tag,
+  Edit3,
+  Activity,
+  Award,
+  Headphones,
+  X,
 } from 'lucide-react';
 
-export const AltivioSidebar: React.FC = () => {
-  const { activeTenant, activeTab, setActiveTab } = useAltivio();
+interface AltivioSidebarProps {
+  mobileOpen?: boolean;
+  onCloseMobile?: () => void;
+}
 
-  const isService = activeTenant.activeModule === 'service';
+export const AltivioSidebar: React.FC<AltivioSidebarProps> = ({
+  mobileOpen = false,
+  onCloseMobile,
+}) => {
+  const { tenant } = useTenant();
+  const basePath = `/app/${tenant.slug}`;
+  const isService = tenant.activeModule === 'service';
 
-  return (
-    <aside className="w-64 bg-slate-900 border-r border-slate-800 flex flex-col shrink-0 select-none">
-      {/* Client Brand & Website Header */}
-      <div className="h-16 px-5 border-b border-slate-800 flex items-center justify-between">
+  const navLinkClass = ({ isActive }: { isActive: boolean }) =>
+    `w-full flex items-center justify-between px-3 py-2 rounded-lg text-left text-xs transition-colors whitespace-nowrap ${
+      isActive
+        ? 'font-semibold text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700/70'
+        : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/70 hover:text-slate-900 dark:hover:text-white border border-transparent'
+    }`;
+
+  const activeNavStyle = ({ isActive }: { isActive: boolean }) =>
+    isActive ? { backgroundColor: 'var(--brand-accent-soft)' } : undefined;
+
+  const sidebarContent = (
+    <aside className="w-64 h-full bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col shrink-0 select-none">
+      {/* Brand Lockup */}
+      <div className="h-16 px-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-2.5 min-w-0">
-          <div 
-            className="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs text-white font-mono shadow-xs shrink-0"
-            style={{ backgroundColor: activeTenant.brandAccentHex || '#6366f1' }}
+          <div
+            className="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs text-white font-mono shrink-0"
+            style={{ backgroundColor: tenant.brandAccentHex || '#4f46e5' }}
           >
-            {activeTenant.logoInitials}
+            {tenant.logoInitials}
           </div>
           <div className="min-w-0">
-            <div className="text-xs font-bold text-white truncate font-display">
-              {activeTenant.name}
+            <div className="text-xs font-bold text-slate-900 dark:text-white truncate font-display">
+              {tenant.name}
             </div>
-            <div className="text-[10px] text-slate-400 font-mono truncate">
+            <div className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
               Powered by Altivio
             </div>
           </div>
         </div>
+
+        {onCloseMobile && (
+          <button
+            type="button"
+            onClick={onCloseMobile}
+            aria-label="Close navigation menu"
+            className="lg:hidden p-1.5 rounded-lg text-slate-500 hover:text-slate-900 dark:hover:text-white"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        )}
       </div>
 
       {/* Navigation Sections */}
-      <div className="flex-1 py-4 px-3 space-y-4 overflow-y-auto">
-        {/* Section 1: Revenue Proof & Audience (Base Features) */}
+      <nav className="flex-1 py-4 px-3 space-y-5 overflow-y-auto">
+        {/* Section 1: Revenue Proof & Audience */}
         <div className="space-y-1">
-          <div className="px-2 pb-1 text-[10px] font-semibold tracking-wider uppercase text-slate-400">
-            Revenue & Proof
+          <div className="px-2 pb-1 text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+            Revenue &amp; Proof
           </div>
-          <button
-            onClick={() => setActiveTab('proof-overview')}
-            className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-left text-xs transition-colors ${
-              activeTab === 'proof-overview'
-                ? 'bg-indigo-600/15 text-indigo-300 font-semibold border border-indigo-500/20'
-                : 'text-slate-300 hover:bg-slate-800/80 hover:text-slate-100'
-            }`}
-          >
-            <div className="flex items-center gap-2.5">
-              <DollarSign className={`w-4 h-4 ${activeTab === 'proof-overview' ? 'text-emerald-400' : 'text-slate-400'}`} />
-              <span>What Website Earned</span>
-            </div>
-            <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/60 px-1.5 py-0.5 rounded border border-emerald-800/40">
-              Proof
-            </span>
-          </button>
 
-          <button
-            onClick={() => setActiveTab('traffic')}
-            className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-left text-xs transition-colors ${
-              activeTab === 'traffic'
-                ? 'bg-indigo-600/15 text-indigo-300 font-semibold border border-indigo-500/20'
-                : 'text-slate-300 hover:bg-slate-800/80 hover:text-slate-100'
-            }`}
+          <NavLink
+            to={`${basePath}/overview`}
+            onClick={onCloseMobile}
+            className={navLinkClass}
+            style={activeNavStyle}
           >
-            <div className="flex items-center gap-2.5">
-              <BarChart3 className={`w-4 h-4 ${activeTab === 'traffic' ? 'text-amber-400' : 'text-slate-400'}`} />
-              <span>Google Analytics</span>
+            <div className="flex items-center gap-2.5 min-w-0">
+              <DollarSign className="w-4 h-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
+              <span className="truncate">What Website Earned</span>
             </div>
-            <span className="text-[10px] font-mono text-amber-300 bg-amber-950/60 px-1.5 py-0.5 rounded border border-amber-800/40">
-              GA4
-            </span>
-          </button>
+          </NavLink>
 
-          <button
-            onClick={() => setActiveTab('enquiries')}
-            className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-left text-xs transition-colors ${
-              activeTab === 'enquiries'
-                ? 'bg-indigo-600/15 text-indigo-300 font-semibold border border-indigo-500/20'
-                : 'text-slate-300 hover:bg-slate-800/80 hover:text-slate-100'
-            }`}
+          <NavLink
+            to={`${basePath}/analytics`}
+            onClick={onCloseMobile}
+            className={navLinkClass}
+            style={activeNavStyle}
           >
-            <div className="flex items-center gap-2.5">
-              <Mail className={`w-4 h-4 ${activeTab === 'enquiries' ? 'text-indigo-400' : 'text-slate-400'}`} />
-              <span>Enquiries Inbox</span>
+            <div className="flex items-center gap-2.5 min-w-0">
+              <BarChart3 className="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400" />
+              <span className="truncate">Google Analytics</span>
             </div>
-            {activeTenant.enquiries.length > 0 && (
-              <span className="text-[10px] font-mono text-slate-400 bg-slate-800 px-1.5 py-0.5 rounded">
-                {activeTenant.enquiries.length}
-              </span>
-            )}
-          </button>
+            <span className="text-[10px] font-mono text-slate-500 dark:text-slate-400">GA4</span>
+          </NavLink>
 
-          <button
-            onClick={() => setActiveTab('insights')}
-            className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-left text-xs transition-colors ${
-              activeTab === 'insights'
-                ? 'bg-indigo-600/15 text-indigo-300 font-semibold border border-indigo-500/20'
-                : 'text-slate-300 hover:bg-slate-800/80 hover:text-slate-100'
-            }`}
+          <NavLink
+            to={`${basePath}/enquiries`}
+            onClick={onCloseMobile}
+            className={navLinkClass}
+            style={activeNavStyle}
           >
-            <div className="flex items-center gap-2.5">
-              <Sparkles className={`w-4 h-4 ${activeTab === 'insights' ? 'text-amber-400' : 'text-slate-400'}`} />
-              <span>Weekly Insights</span>
+            <div className="flex items-center gap-2.5 min-w-0">
+              <Mail className="w-4 h-4 shrink-0 text-slate-500 dark:text-slate-400" />
+              <span className="truncate">Enquiries Inbox</span>
             </div>
-            <span className="text-[10px] font-mono text-indigo-300 bg-indigo-950/80 px-1.5 py-0.5 rounded border border-indigo-800/50">
-              Gemini
+            <span className="text-[11px] font-mono tabular-nums text-slate-500 dark:text-slate-400">
+              {tenant.enquiries.length}
             </span>
-          </button>
+          </NavLink>
+
+          <NavLink
+            to={`${basePath}/insights`}
+            onClick={onCloseMobile}
+            className={navLinkClass}
+            style={activeNavStyle}
+          >
+            <div className="flex items-center gap-2.5 min-w-0">
+              <Sparkles className="w-4 h-4 shrink-0 text-indigo-600 dark:text-indigo-400" />
+              <span className="truncate">Weekly Insights</span>
+            </div>
+            <span className="text-[10px] font-mono text-indigo-600 dark:text-indigo-300">AI</span>
+          </NavLink>
         </div>
 
-        {/* Section 2: Business Module (Service vs Shop) */}
+        {/* Section 2: Active Business Engine */}
         <div className="space-y-1">
-          <div className="px-2 pb-1 text-[10px] font-semibold tracking-wider uppercase text-slate-400 flex items-center justify-between">
+          <div className="px-2 pb-1 text-[11px] font-semibold text-slate-500 dark:text-slate-400 flex items-center justify-between">
             <span>{isService ? 'Service Engine' : 'Shop Engine'}</span>
-            <span className="text-[9px] font-mono text-indigo-400 lowercase">module active</span>
           </div>
 
           {isService ? (
-            /* SERVICE BUSINESS MODULE */
             <>
-              <button
-                onClick={() => setActiveTab('leads-pipeline')}
-                className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-left text-xs transition-colors ${
-                  activeTab === 'leads-pipeline'
-                    ? 'bg-indigo-600/15 text-indigo-300 font-semibold border border-indigo-500/20'
-                    : 'text-slate-300 hover:bg-slate-800/80 hover:text-slate-100'
-                }`}
+              <NavLink
+                to={`${basePath}/service/leads`}
+                onClick={onCloseMobile}
+                className={navLinkClass}
+                style={activeNavStyle}
               >
-                <div className="flex items-center gap-2.5">
-                  <GitBranch className={`w-4 h-4 ${activeTab === 'leads-pipeline' ? 'text-indigo-400' : 'text-slate-400'}`} />
-                  <span>Leads Pipeline</span>
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <GitBranch className="w-4 h-4 shrink-0 text-slate-500 dark:text-slate-400" />
+                  <span className="truncate">Leads Pipeline</span>
                 </div>
-                <span className="text-[10px] font-mono text-slate-400 bg-slate-800 px-1.5 py-0.5 rounded">
-                  {activeTenant.serviceData?.leads.length || 0}
+                <span className="text-[11px] font-mono tabular-nums text-slate-500 dark:text-slate-400">
+                  {tenant.serviceData?.leads.length || 0}
                 </span>
-              </button>
+              </NavLink>
 
-              <button
-                onClick={() => setActiveTab('quotes')}
-                className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-left text-xs transition-colors ${
-                  activeTab === 'quotes'
-                    ? 'bg-indigo-600/15 text-indigo-300 font-semibold border border-indigo-500/20'
-                    : 'text-slate-300 hover:bg-slate-800/80 hover:text-slate-100'
-                }`}
+              <NavLink
+                to={`${basePath}/service/quotes`}
+                onClick={onCloseMobile}
+                className={navLinkClass}
+                style={activeNavStyle}
               >
-                <FileText className={`w-4 h-4 ${activeTab === 'quotes' ? 'text-indigo-400' : 'text-slate-400'}`} />
-                <span>Quotes & Proposals</span>
-              </button>
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <FileText className="w-4 h-4 shrink-0 text-slate-500 dark:text-slate-400" />
+                  <span className="truncate">Quotes &amp; Proposals</span>
+                </div>
+              </NavLink>
 
-              <button
-                onClick={() => setActiveTab('invoices')}
-                className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-left text-xs transition-colors ${
-                  activeTab === 'invoices'
-                    ? 'bg-indigo-600/15 text-indigo-300 font-semibold border border-indigo-500/20'
-                    : 'text-slate-300 hover:bg-slate-800/80 hover:text-slate-100'
-                }`}
+              <NavLink
+                to={`${basePath}/service/invoices`}
+                onClick={onCloseMobile}
+                className={navLinkClass}
+                style={activeNavStyle}
               >
-                <Receipt className={`w-4 h-4 ${activeTab === 'invoices' ? 'text-indigo-400' : 'text-slate-400'}`} />
-                <span>Invoices & Payments</span>
-              </button>
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <Receipt className="w-4 h-4 shrink-0 text-slate-500 dark:text-slate-400" />
+                  <span className="truncate">Invoices &amp; Payments</span>
+                </div>
+              </NavLink>
 
-              <button
-                onClick={() => setActiveTab('follow-ups')}
-                className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-left text-xs transition-colors ${
-                  activeTab === 'follow-ups'
-                    ? 'bg-indigo-600/15 text-indigo-300 font-semibold border border-indigo-500/20'
-                    : 'text-slate-300 hover:bg-slate-800/80 hover:text-slate-100'
-                }`}
+              <NavLink
+                to={`${basePath}/service/follow-ups`}
+                onClick={onCloseMobile}
+                className={navLinkClass}
+                style={activeNavStyle}
               >
-                <Clock className={`w-4 h-4 ${activeTab === 'follow-ups' ? 'text-indigo-400' : 'text-slate-400'}`} />
-                <span>Automated Follow-ups</span>
-              </button>
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <Clock className="w-4 h-4 shrink-0 text-slate-500 dark:text-slate-400" />
+                  <span className="truncate">Automated Follow-ups</span>
+                </div>
+              </NavLink>
             </>
           ) : (
-            /* SHOP / E-COMMERCE MODULE */
             <>
-              <button
-                onClick={() => setActiveTab('orders')}
-                className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-left text-xs transition-colors ${
-                  activeTab === 'orders'
-                    ? 'bg-indigo-600/15 text-indigo-300 font-semibold border border-indigo-500/20'
-                    : 'text-slate-300 hover:bg-slate-800/80 hover:text-slate-100'
-                }`}
+              <NavLink
+                to={`${basePath}/shop/orders`}
+                onClick={onCloseMobile}
+                className={navLinkClass}
+                style={activeNavStyle}
               >
-                <div className="flex items-center gap-2.5">
-                  <ShoppingCart className={`w-4 h-4 ${activeTab === 'orders' ? 'text-indigo-400' : 'text-slate-400'}`} />
-                  <span>Orders</span>
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <ShoppingCart className="w-4 h-4 shrink-0 text-slate-500 dark:text-slate-400" />
+                  <span className="truncate">Orders</span>
                 </div>
-                <span className="text-[10px] font-mono text-slate-400 bg-slate-800 px-1.5 py-0.5 rounded">
-                  {activeTenant.shopData?.orders.length || 0}
+                <span className="text-[11px] font-mono tabular-nums text-slate-500 dark:text-slate-400">
+                  {tenant.shopData?.orders.length || 0}
                 </span>
-              </button>
+              </NavLink>
 
-              <button
-                onClick={() => setActiveTab('products')}
-                className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-left text-xs transition-colors ${
-                  activeTab === 'products'
-                    ? 'bg-indigo-600/15 text-indigo-300 font-semibold border border-indigo-500/20'
-                    : 'text-slate-300 hover:bg-slate-800/80 hover:text-slate-100'
-                }`}
+              <NavLink
+                to={`${basePath}/shop/products`}
+                onClick={onCloseMobile}
+                className={navLinkClass}
+                style={activeNavStyle}
               >
-                <Package className={`w-4 h-4 ${activeTab === 'products' ? 'text-indigo-400' : 'text-slate-400'}`} />
-                <span>Products & Stock</span>
-              </button>
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <Package className="w-4 h-4 shrink-0 text-slate-500 dark:text-slate-400" />
+                  <span className="truncate">Products &amp; Stock</span>
+                </div>
+              </NavLink>
 
-              <button
-                onClick={() => setActiveTab('customers')}
-                className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-left text-xs transition-colors ${
-                  activeTab === 'customers'
-                    ? 'bg-indigo-600/15 text-indigo-300 font-semibold border border-indigo-500/20'
-                    : 'text-slate-300 hover:bg-slate-800/80 hover:text-slate-100'
-                }`}
+              <NavLink
+                to={`${basePath}/shop/customers`}
+                onClick={onCloseMobile}
+                className={navLinkClass}
+                style={activeNavStyle}
               >
-                <Users className={`w-4 h-4 ${activeTab === 'customers' ? 'text-indigo-400' : 'text-slate-400'}`} />
-                <span>Customers & LTV</span>
-              </button>
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <Users className="w-4 h-4 shrink-0 text-slate-500 dark:text-slate-400" />
+                  <span className="truncate">Customers &amp; LTV</span>
+                </div>
+              </NavLink>
 
-              <button
-                onClick={() => setActiveTab('abandoned-carts')}
-                className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-left text-xs transition-colors ${
-                  activeTab === 'abandoned-carts'
-                    ? 'bg-indigo-600/15 text-indigo-300 font-semibold border border-indigo-500/20'
-                    : 'text-slate-300 hover:bg-slate-800/80 hover:text-slate-100'
-                }`}
+              <NavLink
+                to={`${basePath}/shop/abandoned-carts`}
+                onClick={onCloseMobile}
+                className={navLinkClass}
+                style={activeNavStyle}
               >
-                <RotateCcw className={`w-4 h-4 ${activeTab === 'abandoned-carts' ? 'text-indigo-400' : 'text-slate-400'}`} />
-                <span>Abandoned Carts</span>
-              </button>
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <RotateCcw className="w-4 h-4 shrink-0 text-slate-500 dark:text-slate-400" />
+                  <span className="truncate">Abandoned Carts</span>
+                </div>
+              </NavLink>
 
-              <button
-                onClick={() => setActiveTab('discounts')}
-                className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-left text-xs transition-colors ${
-                  activeTab === 'discounts'
-                    ? 'bg-indigo-600/15 text-indigo-300 font-semibold border border-indigo-500/20'
-                    : 'text-slate-300 hover:bg-slate-800/80 hover:text-slate-100'
-                }`}
+              <NavLink
+                to={`${basePath}/shop/discounts`}
+                onClick={onCloseMobile}
+                className={navLinkClass}
+                style={activeNavStyle}
               >
-                <Tag className={`w-4 h-4 ${activeTab === 'discounts' ? 'text-indigo-400' : 'text-slate-400'}`} />
-                <span>Discounts & Promos</span>
-              </button>
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <Tag className="w-4 h-4 shrink-0 text-slate-500 dark:text-slate-400" />
+                  <span className="truncate">Discounts &amp; Promos</span>
+                </div>
+              </NavLink>
             </>
           )}
         </div>
 
-        {/* Section 3: Website Controls & Base Utilities */}
+        {/* Section 3: Website & Studio */}
         <div className="space-y-1">
-          <div className="px-2 pb-1 text-[10px] font-semibold tracking-wider uppercase text-slate-400">
-            Website & Studio
+          <div className="px-2 pb-1 text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+            Website &amp; Studio
           </div>
 
-          <button
-            onClick={() => setActiveTab('content-editor')}
-            className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-left text-xs transition-colors ${
-              activeTab === 'content-editor'
-                ? 'bg-indigo-600/15 text-indigo-300 font-semibold border border-indigo-500/20'
-                : 'text-slate-300 hover:bg-slate-800/80 hover:text-slate-100'
-            }`}
+          <NavLink
+            to={`${basePath}/content`}
+            onClick={onCloseMobile}
+            className={navLinkClass}
+            style={activeNavStyle}
           >
-            <Edit3 className={`w-4 h-4 ${activeTab === 'content-editor' ? 'text-indigo-400' : 'text-slate-400'}`} />
-            <span>Content Quick Editor</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('health-vitals')}
-            className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-left text-xs transition-colors ${
-              activeTab === 'health-vitals'
-                ? 'bg-indigo-600/15 text-indigo-300 font-semibold border border-indigo-500/20'
-                : 'text-slate-300 hover:bg-slate-800/80 hover:text-slate-100'
-            }`}
-          >
-            <div className="flex items-center gap-2.5">
-              <Activity className={`w-4 h-4 ${activeTab === 'health-vitals' ? 'text-emerald-400' : 'text-slate-400'}`} />
-              <span>Speed & Vitals</span>
+            <div className="flex items-center gap-2.5 min-w-0">
+              <Edit3 className="w-4 h-4 shrink-0 text-slate-500 dark:text-slate-400" />
+              <span className="truncate">Content Quick Editor</span>
             </div>
-            <span className="text-[10px] font-mono text-emerald-400">
-              {activeTenant.websiteHealth.speedScore}/100
+          </NavLink>
+
+          <NavLink
+            to={`${basePath}/health`}
+            onClick={onCloseMobile}
+            className={navLinkClass}
+            style={activeNavStyle}
+          >
+            <div className="flex items-center gap-2.5 min-w-0">
+              <Activity className="w-4 h-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
+              <span className="truncate">Speed &amp; Vitals</span>
+            </div>
+            <span className="text-[11px] font-mono tabular-nums text-emerald-600 dark:text-emerald-400">
+              {tenant.websiteHealth.speedScore}/100
             </span>
-          </button>
+          </NavLink>
 
-          <button
-            onClick={() => setActiveTab('proof-reports')}
-            className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-left text-xs transition-colors ${
-              activeTab === 'proof-reports'
-                ? 'bg-indigo-600/15 text-indigo-300 font-semibold border border-indigo-500/20'
-                : 'text-slate-300 hover:bg-slate-800/80 hover:text-slate-100'
-            }`}
+          <NavLink
+            to={`${basePath}/reports`}
+            onClick={onCloseMobile}
+            className={navLinkClass}
+            style={activeNavStyle}
           >
-            <Award className={`w-4 h-4 ${activeTab === 'proof-reports' ? 'text-indigo-400' : 'text-slate-400'}`} />
-            <span>Monthly Proof Reports</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('altivio-support')}
-            className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-left text-xs transition-colors ${
-              activeTab === 'altivio-support'
-                ? 'bg-indigo-600/15 text-indigo-300 font-semibold border border-indigo-500/20'
-                : 'text-slate-300 hover:bg-slate-800/80 hover:text-slate-100'
-            }`}
-          >
-            <div className="flex items-center gap-2.5">
-              <Headphones className={`w-4 h-4 ${activeTab === 'altivio-support' ? 'text-indigo-400' : 'text-slate-400'}`} />
-              <span>Altivio Support</span>
+            <div className="flex items-center gap-2.5 min-w-0">
+              <Award className="w-4 h-4 shrink-0 text-slate-500 dark:text-slate-400" />
+              <span className="truncate">Monthly Proof Reports</span>
             </div>
-            <span className="text-[10px] font-mono text-indigo-400">Active</span>
-          </button>
-        </div>
-      </div>
+          </NavLink>
 
-      {/* Footer: Live Website ROI Proof Card */}
-      <div className="p-3.5 border-t border-slate-800 bg-slate-950/60 text-xs">
+          <NavLink
+            to={`${basePath}/support`}
+            onClick={onCloseMobile}
+            className={navLinkClass}
+            style={activeNavStyle}
+          >
+            <div className="flex items-center gap-2.5 min-w-0">
+              <Headphones className="w-4 h-4 shrink-0 text-slate-500 dark:text-slate-400" />
+              <span className="truncate">Altivio Support</span>
+            </div>
+          </NavLink>
+        </div>
+      </nav>
+
+      {/* Footer: Website ROI Summary */}
+      <div className="p-3.5 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 text-xs shrink-0">
         <div className="flex items-center justify-between text-[11px] mb-1">
-          <span className="text-slate-400 font-medium">Website ROI Proof</span>
-          <span className="text-emerald-400 font-mono font-bold">
-            {activeTenant.revenueProof.roiMultiplier.toFixed(1)}x
+          <span className="text-slate-600 dark:text-slate-400 font-medium">Website ROI Proof</span>
+          <span className="text-emerald-600 dark:text-emerald-400 font-mono font-bold tabular-nums">
+            {tenant.revenueProof.roiMultiplier.toFixed(1)}x
           </span>
         </div>
-        <p className="text-[10px] text-slate-400 leading-tight">
-          ${activeTenant.revenueProof.monthlyRevenue.toLocaleString()} generated vs ${activeTenant.monthlyWebsiteFee}/mo fee.
+        <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-tight font-mono tabular-nums">
+          ${tenant.revenueProof.monthlyRevenue.toLocaleString()} vs ${tenant.monthlyWebsiteFee}/mo
         </p>
       </div>
     </aside>
+  );
+
+  return (
+    <>
+      {/* Desktop persistent sidebar */}
+      <div className="hidden lg:block h-full shrink-0">{sidebarContent}</div>
+
+      {/* Mobile slide-over drawer */}
+      {mobileOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden flex">
+          <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs" onClick={onCloseMobile} />
+          <div className="relative z-10 h-full">{sidebarContent}</div>
+        </div>
+      )}
+    </>
   );
 };
